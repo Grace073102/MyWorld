@@ -29,22 +29,9 @@
 		1D314682306A99E5008EE97F /* MyWorldUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyWorldUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		1D31473E306AB5BE008EE97F /* Exceptions for "MyWorld" folder in "MyWorld" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				MyWorld.xcdatamodeld,
-			);
-			target = 1D314665306A99E0008EE97F /* MyWorld */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1D314668306A99E0008EE97F /* MyWorld */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				1D31473E306AB5BE008EE97F /* Exceptions for "MyWorld" folder in "MyWorld" target */,
-			);
 			path = MyWorld;
 			sourceTree = "<group>";
 		};

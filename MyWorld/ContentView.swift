@@ -9,24 +9,29 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 16) {
-                Image(systemName: "globe.asia.australia.fill")
-                    .font(.system(size: 70))
-                
-                Text("MyWorld")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                
-                Text("Your travel history, all in one place.")
-                    .foregroundStyle(.secondary)
-            }
-            .navigationTitle("My World")
-        }
-    }
-}
 
-#Preview {
-    ContentView()
+    private let context: NSManagedObjectContext
+
+    init(context: NSManagedObjectContext) {
+        self.context = context
+    }
+
+    var body: some View {
+
+        let repository = CoreDataTravelRepository(
+            context: context
+        )
+
+        let useCase = RecordTripUseCase(
+            repository: repository
+        )
+
+        let viewModel = AddTripViewModel(
+            recordTripUseCase: useCase
+        )
+
+        AddTripView(
+            viewModel: viewModel
+        )
+    }
 }

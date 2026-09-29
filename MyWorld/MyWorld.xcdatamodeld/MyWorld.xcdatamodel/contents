@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24411" systemVersion="25A362" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class"/>
-    <entity name="Trip" representedClassName="Trip" syncable="YES" codeGenerationType="class">
+    <entity name="Trip" representedClassName=".Trip" syncable="YES" codeGenerationType="class">
         <attribute name="country" attributeType="String"/>
         <attribute name="countryCode" attributeType="String"/>
         <attribute name="endDate" attributeType="Date" usesScalarValueType="NO"/>
@@ -11,7 +11,7 @@
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="places" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="VisitedPlace" inverseName="trip" inverseEntity="VisitedPlace"/>
     </entity>
-    <entity name="VisitedPlace" representedClassName="VisitedPlace" syncable="YES" codeGenerationType="class">
+    <entity name="VisitedPlace" representedClassName=".VisitedPlace" syncable="YES" codeGenerationType="class">
         <attribute name="city" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="latitude" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>

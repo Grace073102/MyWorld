@@ -10,12 +10,14 @@ import CoreData
 
 @main
 struct MyWorldApp: App {
-//    let persistenceController = PersistenceController.shared
+
+    let persistenceController = PersistenceController.shared
 
     var body: some Scene {
         WindowGroup {
-//            ContentView()
-//                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            ContentView(
+                context: persistenceController.container.viewContext
+            )
         }
     }
 }
