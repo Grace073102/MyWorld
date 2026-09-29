@@ -10,6 +10,7 @@ import SwiftUI
 struct AddTripView: View {
 
     @StateObject private var viewModel: AddTripViewModel
+    @Environment(\.dismiss) private var dismiss
 
     init(viewModel: AddTripViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -101,59 +102,11 @@ struct AddTripView: View {
                 }
             }
             .navigationTitle("Add Trip")
+            .onChange(of: viewModel.didSave) { _, didSave in
+                if didSave {
+                    dismiss()
+                }
+            }
         }
     }
-}
-
-
-// MARK: - Preview Repository
-
-#if DEBUG
-
-private final class PreviewTravelRepository: TravelRepositoryProtocol {
-
-    func saveTrip(_ trip: TripModel) throws {
-        print("Preview saved trip: \(trip.name)")
-    }
-
-    func fetchTrips() throws -> [TripModel] {
-        return []
-    }
-
-    func fetchTrips(countryCode: String) throws -> [TripModel] {
-        return []
-    }
-
-    func deleteTrip(id: UUID) throws {
-        // Nothing needs to be deleted in Preview.
-    }
-
-    func savePlace(_ place: VisitedPlaceModel) throws {
-        // Nothing needs to be saved in Preview.
-    }
-
-    func fetchPlaces(tripID: UUID) throws -> [VisitedPlaceModel] {
-        return []
-    }
-}
-
-#endif
-
-
-// MARK: - Preview
-
-#Preview {
-    let repository = PreviewTravelRepository()
-
-    let useCase = RecordTripUseCase(
-        repository: repository
-    )
-
-    let viewModel = AddTripViewModel(
-        recordTripUseCase: useCase
-    )
-
-    AddTripView(
-        viewModel: viewModel
-    )
 }

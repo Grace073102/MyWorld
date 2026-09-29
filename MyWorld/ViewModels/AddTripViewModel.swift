@@ -38,12 +38,20 @@ final class AddTripViewModel: ObservableObject {
                 notes: notes
             )
 
-            didSave = true
             errorMessage = nil
-
+            didSave = true
         } catch {
             errorMessage = error.localizedDescription
             didSave = false
         }
+    }
+    
+    private func clearForm() {
+        name = ""
+        country = ""
+        countryCode = ""
+        startDate = Date()
+        endDate = Date()
+        notes = ""
     }
 }

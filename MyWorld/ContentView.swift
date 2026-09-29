@@ -18,20 +18,102 @@ struct ContentView: View {
 
     var body: some View {
 
+        TabView {
+
+            // MARK: - My World
+
+            NavigationStack {
+                VStack(spacing: 16) {
+
+                    Image(systemName: "globe.asia.australia.fill")
+                        .font(.system(size: 70))
+
+                    Text("MyWorld")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+
+                    Text("Your travel history, all in one place.")
+                        .foregroundStyle(.secondary)
+                }
+                .navigationTitle("My World")
+            }
+            .tabItem {
+                Label(
+                    "My World",
+                    systemImage: "globe.asia.australia.fill"
+                )
+            }
+
+
+            // MARK: - Trips
+
+            TripsContainerView(context: context)
+                .tabItem {
+                    Label(
+                        "Trips",
+                        systemImage: "airplane"
+                    )
+                }
+        }
+    }
+}
+
+private struct TripsContainerView: View {
+
+    let context: NSManagedObjectContext
+
+    @State private var showingAddTrip = false
+    @State private var refreshID = UUID()
+
+    var body: some View {
+
         let repository = CoreDataTravelRepository(
             context: context
         )
 
-        let useCase = RecordTripUseCase(
+        let historyUseCase = GetTravelHistoryUseCase(
             repository: repository
         )
 
-        let viewModel = AddTripViewModel(
-            recordTripUseCase: useCase
+        let tripsViewModel = TripsViewModel(
+            getTravelHistoryUseCase: historyUseCase
         )
 
-        AddTripView(
-            viewModel: viewModel
-        )
+        NavigationStack {
+            TripsView(
+                viewModel: tripsViewModel
+            )
+            .id(refreshID)
+            .toolbar {
+                ToolbarItem(
+                    placement: .topBarTrailing
+                ) {
+                    Button {
+                        showingAddTrip = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(
+                isPresented: $showingAddTrip,
+                onDismiss: {
+                    refreshID = UUID()
+                }
+            ) {
+
+                let recordUseCase = RecordTripUseCase(
+                    repository: repository
+                )
+
+                let addTripViewModel = AddTripViewModel(
+                    recordTripUseCase: recordUseCase
+                )
+
+                AddTripView(
+                    viewModel: addTripViewModel
+                )
+            }
+        }
     }
 }
