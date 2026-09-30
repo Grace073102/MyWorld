@@ -19,6 +19,7 @@ protocol TravelRepositoryProtocol {
     
     func deleteTrip(id: UUID) throws
     
+    func updateTrip(_ trip: TripModel) throws
     
     // MARK: - Places
     

@@ -10,9 +10,14 @@ import SwiftUI
 struct TripsView: View {
 
     @StateObject private var viewModel: TripsViewModel
+    private let repository: TravelRepositoryProtocol
 
-    init(viewModel: TripsViewModel) {
+    init(
+        viewModel: TripsViewModel,
+        repository: TravelRepositoryProtocol
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.repository = repository
     }
 
     var body: some View {
@@ -37,37 +42,40 @@ struct TripsView: View {
                 )
 
             } else {
-
                 List(viewModel.trips) { trip in
-
-                    VStack(
-                        alignment: .leading,
-                        spacing: 6
-                    ) {
-
-                        HStack {
-
-                            Text(flag(for: trip.countryCode))
-                                .font(.title2)
-
-                            Text(trip.name)
-                                .font(.headline)
-                        }
-
-                        Text(trip.country)
+                    NavigationLink {
+                        TripDetailView(
+                            trip: trip,
+                            repository: repository
+                        )
+                    } label: {
+                        VStack(
+                            alignment: .leading,
+                            spacing: 6
+                        ) {
+                            HStack {
+                                Text(flag(for: trip.countryCode))
+                                    .font(.title2)
+                                
+                                Text(trip.name)
+                                    .font(.headline)
+                            }
+                            
+                            Text(trip.country)
+                                .foregroundStyle(.secondary)
+                            
+                            Label {
+                                Text(
+                                    "\(trip.startDate.formatted(date: .abbreviated, time: .omitted)) – \(trip.endDate.formatted(date: .abbreviated, time: .omitted))"
+                                )
+                            } icon: {
+                                Image(systemName: "calendar")
+                            }
+                            .font(.caption)
                             .foregroundStyle(.secondary)
-
-                        Label {
-                            Text(
-                                "\(trip.startDate.formatted(date: .abbreviated, time: .omitted)) – \(trip.endDate.formatted(date: .abbreviated, time: .omitted))"
-                            )
-                        } icon: {
-                            Image(systemName: "calendar")
                         }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 4)
                     }
-                    .padding(.vertical, 4)
                 }
             }
         }

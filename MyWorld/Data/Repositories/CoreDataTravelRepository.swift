@@ -163,4 +163,29 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
             )
         }
     }
+    
+    func updateTrip(_ trip: TripModel) throws {
+
+        let request: NSFetchRequest<Trip> = Trip.fetchRequest()
+
+        request.predicate = NSPredicate(
+            format: "id == %@",
+            trip.id as CVarArg
+        )
+
+        request.fetchLimit = 1
+
+        guard let entity = try context.fetch(request).first else {
+            throw RepositoryError.tripNotFound
+        }
+
+        entity.name = trip.name
+        entity.country = trip.country
+        entity.countryCode = trip.countryCode
+        entity.startDate = trip.startDate
+        entity.endDate = trip.endDate
+        entity.notes = trip.notes
+
+        try context.save()
+    }
 }

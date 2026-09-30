@@ -81,7 +81,8 @@ private struct TripsContainerView: View {
 
         NavigationStack {
             TripsView(
-                viewModel: tripsViewModel
+                viewModel: tripsViewModel,
+                repository: repository
             )
             .id(refreshID)
             .toolbar {
