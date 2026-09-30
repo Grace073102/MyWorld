@@ -13,6 +13,10 @@ struct TripDetailView: View {
     let repository: TravelRepositoryProtocol
     
     @State private var showingEditTrip = false
+    @State private var showingDeleteConfirmation = false
+    @State private var deleteErrorMessage: String?
+    
+    @Environment(\.dismiss) private var dismiss
     
     init(
         trip: TripModel,
@@ -64,6 +68,23 @@ struct TripDetailView: View {
                     )
                 )
             }
+            
+            Section {
+                Button(role: .destructive) {
+                    showingDeleteConfirmation = true
+                } label: {
+                    HStack {
+                        Spacer()
+
+                        Label(
+                            "Delete Trip",
+                            systemImage: "trash"
+                        )
+
+                        Spacer()
+                    }
+                }
+            }
         }
         .navigationTitle(trip.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -95,5 +116,57 @@ struct TripDetailView: View {
                 trip = updatedTrip
             }
         }
+        .alert(
+            "Delete Trip?",
+            isPresented: $showingDeleteConfirmation
+        ) {
+            Button(
+                "Delete",
+                role: .destructive
+            ) {
+                deleteTrip()
+            }
+
+            Button(
+                "Cancel",
+                role: .cancel
+            ) { }
+
+        } message: {
+            Text("Are you sure you want to delete \"\(trip.name)\"? This action cannot be undone.")
+        }
+        .alert(
+            "Delete Failed",
+            isPresented: Binding(
+                get: {
+                    deleteErrorMessage != nil
+                },
+                set: { newValue in
+                    if !newValue {
+                        deleteErrorMessage = nil
+                    }
+                }
+            )
+        ) {
+            Button("OK") {
+                deleteErrorMessage = nil
+            }
+        } message: {
+            Text(deleteErrorMessage ?? "")
+        }
+    }
+    
+    private func deleteTrip() {
+        let deleteUseCase = DeleteTripUseCase(repository: repository)
+
+        do {
+            try deleteUseCase.execute(
+                tripID: trip.id
+            )
+            dismiss()
+        } catch {
+            deleteErrorMessage = "Unable to delete this trip."
+        }
     }
 }
+
