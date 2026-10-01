@@ -14,6 +14,7 @@ enum TravelError: Error, Equatable, LocalizedError {
     case emptyPlaceName
     case invalidCoordinates
     case tripNotFound
+    case visitedDateOutsideTrip
 
     var errorDescription: String? {
         switch self {
@@ -34,6 +35,9 @@ enum TravelError: Error, Equatable, LocalizedError {
 
         case .tripNotFound:
             return "The selected trip could not be found."
+            
+        case .visitedDateOutsideTrip:
+            return "The visited date must be between the trip start and end dates."
         }
     }
 }

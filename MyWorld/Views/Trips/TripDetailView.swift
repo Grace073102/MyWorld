@@ -15,6 +15,7 @@ struct TripDetailView: View {
     @State private var showingEditTrip = false
     @State private var showingDeleteConfirmation = false
     @State private var deleteErrorMessage: String?
+    @State private var showingAddPlace = false
     
     @Environment(\.dismiss) private var dismiss
     
@@ -59,7 +60,7 @@ struct TripDetailView: View {
                 }
             }
 
-            Section("Visited Places") {
+            Section {
                 ContentUnavailableView(
                     "No Places Yet",
                     systemImage: "mappin.and.ellipse",
@@ -67,6 +68,18 @@ struct TripDetailView: View {
                         "Add places you visited during this trip."
                     )
                 )
+
+                Button {
+                    showingAddPlace = true
+                } label: {
+                    Label(
+                        "Add Visited Place",
+                        systemImage: "plus.circle.fill"
+                    )
+                }
+
+            } header: {
+                Text("Visited Places")
             }
             
             Section {
@@ -116,21 +129,27 @@ struct TripDetailView: View {
                 trip = updatedTrip
             }
         }
-        .alert(
-            "Delete Trip?",
-            isPresented: $showingDeleteConfirmation
+        .sheet(
+            isPresented: $showingAddPlace
         ) {
-            Button(
-                "Delete",
-                role: .destructive
-            ) {
+
+            let addPlaceUseCase = AddVisitedPlaceUseCase(repository: repository)
+
+            let addPlaceViewModel = AddPlaceViewModel(
+                    tripID: trip.id,
+                    tripStartDate: trip.startDate,
+                    tripEndDate: trip.endDate,
+                    addVisitedPlaceUseCase: addPlaceUseCase
+            )
+
+            AddPlaceView(viewModel: addPlaceViewModel)
+        }
+        .alert("Delete Trip?", isPresented: $showingDeleteConfirmation) {
+            Button("Delete", role: .destructive) {
                 deleteTrip()
             }
 
-            Button(
-                "Cancel",
-                role: .cancel
-            ) { }
+            Button("Cancel", role: .cancel) { }
 
         } message: {
             Text("Are you sure you want to delete \"\(trip.name)\"? This action cannot be undone.")
