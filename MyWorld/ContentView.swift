@@ -22,21 +22,9 @@ struct ContentView: View {
 
             // MARK: - My World
 
-            NavigationStack {
-                VStack(spacing: 16) {
-
-                    Image(systemName: "globe.asia.australia.fill")
-                        .font(.system(size: 70))
-
-                    Text("MyWorld")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-
-                    Text("Your travel history, all in one place.")
-                        .foregroundStyle(.secondary)
-                }
-                .navigationTitle("My World")
-            }
+            MyWorldContainerView(
+                context: context
+            )
             .tabItem {
                 Label(
                     "My World",
@@ -47,16 +35,55 @@ struct ContentView: View {
 
             // MARK: - Trips
 
-            TripsContainerView(context: context)
-                .tabItem {
-                    Label(
-                        "Trips",
-                        systemImage: "airplane"
-                    )
-                }
+            TripsContainerView(
+                context: context
+            )
+            .tabItem {
+                Label(
+                    "Trips",
+                    systemImage: "airplane"
+                )
+            }
         }
     }
 }
+
+
+// MARK: - My World Container
+
+private struct MyWorldContainerView: View {
+
+    let context: NSManagedObjectContext
+
+    var body: some View {
+
+        let repository =
+            CoreDataTravelRepository(
+                context: context
+            )
+
+        let getAllPlacesUseCase =
+            GetAllVisitedPlacesUseCase(
+                repository: repository
+            )
+
+        let myWorldViewModel =
+            MyWorldViewModel(
+                getAllVisitedPlacesUseCase:
+                    getAllPlacesUseCase
+            )
+
+        NavigationStack {
+
+            MyWorldMapView(
+                viewModel: myWorldViewModel
+            )
+        }
+    }
+}
+
+
+// MARK: - Trips Container
 
 private struct TripsContainerView: View {
 
@@ -67,35 +94,47 @@ private struct TripsContainerView: View {
 
     var body: some View {
 
-        let repository = CoreDataTravelRepository(
-            context: context
-        )
+        let repository =
+            CoreDataTravelRepository(
+                context: context
+            )
 
-        let historyUseCase = GetTravelHistoryUseCase(
-            repository: repository
-        )
+        let historyUseCase =
+            GetTravelHistoryUseCase(
+                repository: repository
+            )
 
-        let tripsViewModel = TripsViewModel(
-            getTravelHistoryUseCase: historyUseCase
-        )
+        let tripsViewModel =
+            TripsViewModel(
+                getTravelHistoryUseCase:
+                    historyUseCase
+            )
 
         NavigationStack {
+
             TripsView(
                 viewModel: tripsViewModel,
                 repository: repository
             )
             .id(refreshID)
+
             .toolbar {
+
                 ToolbarItem(
                     placement: .topBarTrailing
                 ) {
+
                     Button {
                         showingAddTrip = true
                     } label: {
-                        Image(systemName: "plus")
+
+                        Image(
+                            systemName: "plus"
+                        )
                     }
                 }
             }
+
             .sheet(
                 isPresented: $showingAddTrip,
                 onDismiss: {
@@ -103,16 +142,20 @@ private struct TripsContainerView: View {
                 }
             ) {
 
-                let recordUseCase = RecordTripUseCase(
-                    repository: repository
-                )
+                let recordUseCase =
+                    RecordTripUseCase(
+                        repository: repository
+                    )
 
-                let addTripViewModel = AddTripViewModel(
-                    recordTripUseCase: recordUseCase
-                )
+                let addTripViewModel =
+                    AddTripViewModel(
+                        recordTripUseCase:
+                            recordUseCase
+                    )
 
                 AddTripView(
-                    viewModel: addTripViewModel
+                    viewModel:
+                        addTripViewModel
                 )
             }
         }

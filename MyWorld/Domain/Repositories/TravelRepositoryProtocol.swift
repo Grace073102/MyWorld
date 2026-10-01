@@ -28,4 +28,6 @@ protocol TravelRepositoryProtocol {
     func fetchPlaces(tripID: UUID) throws -> [VisitedPlaceModel]
     
     func fetchAllPlaces() throws -> [VisitedPlaceModel]
+    
+    func updatePlace(_ place: VisitedPlaceModel) throws
 }

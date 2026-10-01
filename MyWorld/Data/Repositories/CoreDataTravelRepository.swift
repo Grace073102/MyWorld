@@ -189,4 +189,63 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
 
         try context.save()
     }
+    
+    func fetchAllPlaces() throws -> [VisitedPlaceModel] {
+
+        let request: NSFetchRequest<VisitedPlace> =
+            VisitedPlace.fetchRequest()
+
+        request.sortDescriptors = [
+            NSSortDescriptor(
+                key: "visitedDate",
+                ascending: true
+            )
+        ]
+
+        let entities = try context.fetch(request)
+
+        return entities.compactMap { entity in
+
+            guard let id = entity.id,
+                  let tripID = entity.trip?.id else {
+                return nil
+            }
+
+            return VisitedPlaceModel(
+                id: id,
+                name: entity.name ?? "",
+                city: entity.city ?? "",
+                latitude: entity.latitude,
+                longitude: entity.longitude,
+                visitedDate: entity.visitedDate ?? Date(),
+                notes: entity.notes ?? "",
+                tripID: tripID
+            )
+        }
+    }
+    
+    func updatePlace(_ place: VisitedPlaceModel) throws {
+
+        let request: NSFetchRequest<VisitedPlace> = VisitedPlace.fetchRequest()
+
+        request.predicate = NSPredicate(
+            format: "id == %@",
+            place.id as CVarArg
+        )
+
+        request.fetchLimit = 1
+
+        guard let entity = try context.fetch(request).first else {
+            throw RepositoryError.placeNotFound
+        }
+
+        entity.name = place.name
+        entity.city = place.city
+        entity.latitude = place.latitude
+        entity.longitude = place.longitude
+        entity.visitedDate = place.visitedDate
+        entity.notes = place.notes
+
+        try context.save()
+    }
 }
