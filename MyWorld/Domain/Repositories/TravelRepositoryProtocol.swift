@@ -26,4 +26,6 @@ protocol TravelRepositoryProtocol {
     func savePlace(_ place: VisitedPlaceModel) throws
     
     func fetchPlaces(tripID: UUID) throws -> [VisitedPlaceModel]
+    
+    func fetchAllPlaces() throws -> [VisitedPlaceModel]
 }

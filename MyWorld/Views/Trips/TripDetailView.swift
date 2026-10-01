@@ -17,6 +17,8 @@ struct TripDetailView: View {
     @State private var deleteErrorMessage: String?
     @State private var showingAddPlace = false
     
+    @StateObject private var viewModel: TripDetailViewModel
+    
     @Environment(\.dismiss) private var dismiss
     
     init(
@@ -25,6 +27,12 @@ struct TripDetailView: View {
     ) {
         _trip = State(initialValue: trip)
         self.repository = repository
+
+        let getPlacesUseCase = GetPlacesForTripUseCase(repository: repository)
+
+        _viewModel = StateObject(
+            wrappedValue: TripDetailViewModel(tripID: trip.id, getPlacesForTripUseCase: getPlacesUseCase)
+        )
     }
 
     var body: some View {
@@ -61,23 +69,41 @@ struct TripDetailView: View {
             }
 
             Section {
-                ContentUnavailableView(
-                    "No Places Yet",
-                    systemImage: "mappin.and.ellipse",
-                    description: Text(
-                        "Add places you visited during this trip."
+                if viewModel.places.isEmpty {
+                    ContentUnavailableView(
+                        "No Places Yet",
+                        systemImage: "mappin.and.ellipse",
+                        description: Text("Add places you visited during this trip.")
                     )
-                )
+                } else {
+                    ForEach(viewModel.places) { place in
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack {
+                                Image(systemName: "mappin.circle.fill")
+                                    .foregroundStyle(.red)
+                                Text(place.name)
+                                    .font(.headline)
+                            }
+                            if !place.city.isEmpty {
+                                Text(place.city)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Text(
+                                place.visitedDate.formatted(date: .abbreviated, time: .omitted)
+                            )
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
 
                 Button {
                     showingAddPlace = true
                 } label: {
-                    Label(
-                        "Add Visited Place",
-                        systemImage: "plus.circle.fill"
-                    )
+                    Label("Add Visited Place", systemImage: "plus.circle.fill")
                 }
-
             } header: {
                 Text("Visited Places")
             }
@@ -89,10 +115,7 @@ struct TripDetailView: View {
                     HStack {
                         Spacer()
 
-                        Label(
-                            "Delete Trip",
-                            systemImage: "trash"
-                        )
+                        Label("Delete Trip", systemImage: "trash")
 
                         Spacer()
                     }
@@ -101,38 +124,32 @@ struct TripDetailView: View {
         }
         .navigationTitle(trip.name)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            viewModel.loadPlaces()
+        }
+        
         .toolbar {
-            ToolbarItem(
-                placement: .topBarTrailing
-            ) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button("Edit") {
                     showingEditTrip = true
                 }
             }
         }
-        .sheet(
-            isPresented: $showingEditTrip
-        ) {
+        .sheet(isPresented: $showingEditTrip) {
+            let updateUseCase = UpdateTripUseCase(repository: repository)
 
-            let updateUseCase = UpdateTripUseCase(
-                repository: repository
-            )
+            let editViewModel = EditTripViewModel(trip: trip, updateTripUseCase: updateUseCase)
 
-            let editViewModel = EditTripViewModel(
-                trip: trip,
-                updateTripUseCase: updateUseCase
-            )
-
-            EditTripView(
-                viewModel: editViewModel
-            ) { updatedTrip in
+            EditTripView(viewModel: editViewModel) { updatedTrip in
                 trip = updatedTrip
             }
         }
         .sheet(
-            isPresented: $showingAddPlace
+            isPresented: $showingAddPlace,
+            onDismiss: {
+                viewModel.loadPlaces()
+            }
         ) {
-
             let addPlaceUseCase = AddVisitedPlaceUseCase(repository: repository)
 
             let addPlaceViewModel = AddPlaceViewModel(

@@ -135,31 +135,32 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
     func fetchPlaces(tripID: UUID) throws -> [VisitedPlaceModel] {
         let request: NSFetchRequest<VisitedPlace> =
             VisitedPlace.fetchRequest()
-        
-        request.predicate = NSPredicate(
-            format: "trip.id == %@",
-            tripID as CVarArg
-        )
-        
-        request.sortDescriptors = [
-            NSSortDescriptor(
-                keyPath: \VisitedPlace.visitedDate,
-                ascending: true
+
+        request.predicate =
+            NSPredicate(
+                format: "trip.id == %@",
+                tripID as CVarArg
             )
+
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "visitedDate", ascending: true)
         ]
-        
-        let results = try context.fetch(request)
-        
-        return results.map { entity in
+
+        let entities =
+            try context.fetch(request)
+
+        return entities.map { entity in
             VisitedPlaceModel(
                 id: entity.id ?? UUID(),
                 name: entity.name ?? "",
                 city: entity.city ?? "",
                 latitude: entity.latitude,
                 longitude: entity.longitude,
-                visitedDate: entity.visitedDate ?? Date(),
-                notes: entity.notes ?? "",
-                tripID: entity.trip?.id ?? tripID
+                visitedDate:
+                    entity.visitedDate ?? Date(),
+                notes:
+                    entity.notes ?? "",
+                tripID: tripID
             )
         }
     }
