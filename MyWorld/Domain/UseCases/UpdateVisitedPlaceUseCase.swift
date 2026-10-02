@@ -1,13 +1,13 @@
 //
-//  AddVisitedPlaceUseCase.swift
+//  UpdateVisitedPlaceUseCase.swift
 //  MyWorld
 //
-//  Created by Grace Chi Yen Chong on 29/9/2026.
+//  Created by Grace Chi Yen Chong on 2/10/2026.
 //
 
 import Foundation
 
-struct AddVisitedPlaceUseCase {
+struct UpdateVisitedPlaceUseCase {
 
     private let repository: TravelRepositoryProtocol
 
@@ -16,6 +16,7 @@ struct AddVisitedPlaceUseCase {
     }
 
     func execute(
+        id: UUID,
         tripID: UUID,
         name: String,
         city: String,
@@ -35,26 +36,26 @@ struct AddVisitedPlaceUseCase {
             in: .whitespacesAndNewlines
         )
 
+        // MARK: - Validate Name
+
         guard !trimmedName.isEmpty else {
             throw TravelError.emptyPlaceName
         }
 
-//        guard latitude >= -90,
-//              latitude <= 90,
-//              longitude >= -180,
-//              longitude <= 180 else {
-//            throw TravelError.invalidCoordinates
-//        }
 
-        // Visited date must be within trip dates
-        guard visitedDate >= tripStartDate &&
+        // MARK: - Validate Date
+
+        guard visitedDate >= tripStartDate,
               visitedDate <= tripEndDate else {
 
             throw TravelError.visitedDateOutsideTrip
         }
 
-        let place = VisitedPlaceModel(
-            id: UUID(),
+
+        // MARK: - Updated Model
+
+        let updatedPlace = VisitedPlaceModel(
+            id: id,
             name: trimmedName,
             city: trimmedCity,
             latitude: latitude,
@@ -64,6 +65,11 @@ struct AddVisitedPlaceUseCase {
             tripID: tripID
         )
 
-        try repository.savePlace(place)
+
+        // MARK: - Save Update
+
+        try repository.updatePlace(
+            updatedPlace
+        )
     }
 }

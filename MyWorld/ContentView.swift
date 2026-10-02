@@ -17,33 +17,16 @@ struct ContentView: View {
     }
 
     var body: some View {
-
         TabView {
+            MyWorldContainerView(context: context)
+                .tabItem {
+                    Label("My World", systemImage: "globe.asia.australia.fill")
+                }
 
-            // MARK: - My World
-
-            MyWorldContainerView(
-                context: context
-            )
-            .tabItem {
-                Label(
-                    "My World",
-                    systemImage: "globe.asia.australia.fill"
-                )
-            }
-
-
-            // MARK: - Trips
-
-            TripsContainerView(
-                context: context
-            )
-            .tabItem {
-                Label(
-                    "Trips",
-                    systemImage: "airplane"
-                )
-            }
+            TripsContainerView(context: context)
+                .tabItem {
+                    Label("Trips", systemImage: "airplane")
+                }
         }
     }
 }
@@ -56,28 +39,12 @@ private struct MyWorldContainerView: View {
     let context: NSManagedObjectContext
 
     var body: some View {
-
-        let repository =
-            CoreDataTravelRepository(
-                context: context
-            )
-
-        let getAllPlacesUseCase =
-            GetAllVisitedPlacesUseCase(
-                repository: repository
-            )
-
-        let myWorldViewModel =
-            MyWorldViewModel(
-                getAllVisitedPlacesUseCase:
-                    getAllPlacesUseCase
-            )
+        let repository = CoreDataTravelRepository(context: context)
+        let getAllPlacesUseCase = GetAllVisitedPlacesUseCase(repository: repository)
+        let myWorldViewModel = MyWorldViewModel(getAllVisitedPlacesUseCase: getAllPlacesUseCase, repository: repository)
 
         NavigationStack {
-
-            MyWorldMapView(
-                viewModel: myWorldViewModel
-            )
+            MyWorldMapView(viewModel: myWorldViewModel)
         }
     }
 }
@@ -93,71 +60,34 @@ private struct TripsContainerView: View {
     @State private var refreshID = UUID()
 
     var body: some View {
-
-        let repository =
-            CoreDataTravelRepository(
-                context: context
-            )
-
-        let historyUseCase =
-            GetTravelHistoryUseCase(
-                repository: repository
-            )
-
-        let tripsViewModel =
-            TripsViewModel(
-                getTravelHistoryUseCase:
-                    historyUseCase
-            )
+        
+        let repository = CoreDataTravelRepository(context: context)
+        let historyUseCase = GetTravelHistoryUseCase(repository: repository)
+        let tripsViewModel = TripsViewModel(getTravelHistoryUseCase:historyUseCase)
 
         NavigationStack {
-
-            TripsView(
-                viewModel: tripsViewModel,
-                repository: repository
-            )
-            .id(refreshID)
-
-            .toolbar {
-
-                ToolbarItem(
-                    placement: .topBarTrailing
-                ) {
-
-                    Button {
-                        showingAddTrip = true
-                    } label: {
-
-                        Image(
-                            systemName: "plus"
-                        )
+            TripsView(viewModel: tripsViewModel, repository: repository)
+                .id(refreshID)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showingAddTrip = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
-            }
 
-            .sheet(
-                isPresented: $showingAddTrip,
-                onDismiss: {
-                    refreshID = UUID()
+                .sheet(isPresented: $showingAddTrip,
+                    onDismiss: {
+                        refreshID = UUID()
+                    }
+                ) {
+                    let recordUseCase = RecordTripUseCase(repository: repository)
+                    let addTripViewModel = AddTripViewModel(recordTripUseCase: recordUseCase)
+
+                    AddTripView(viewModel: addTripViewModel)
                 }
-            ) {
-
-                let recordUseCase =
-                    RecordTripUseCase(
-                        repository: repository
-                    )
-
-                let addTripViewModel =
-                    AddTripViewModel(
-                        recordTripUseCase:
-                            recordUseCase
-                    )
-
-                AddTripView(
-                    viewModel:
-                        addTripViewModel
-                )
-            }
         }
     }
 }

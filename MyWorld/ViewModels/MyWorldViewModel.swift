@@ -14,30 +14,51 @@ final class MyWorldViewModel: ObservableObject {
     @Published var places: [VisitedPlaceModel] = []
     @Published var errorMessage: String?
 
-    private let getAllVisitedPlacesUseCase:
-        GetAllVisitedPlacesUseCase
+    private let getAllVisitedPlacesUseCase: GetAllVisitedPlacesUseCase
+
+    private let repository: TravelRepositoryProtocol
+
 
     init(
-        getAllVisitedPlacesUseCase:
-            GetAllVisitedPlacesUseCase
+        getAllVisitedPlacesUseCase: GetAllVisitedPlacesUseCase,
+        repository: TravelRepositoryProtocol
     ) {
-        self.getAllVisitedPlacesUseCase =
-            getAllVisitedPlacesUseCase
+
+        self.getAllVisitedPlacesUseCase = getAllVisitedPlacesUseCase
+
+        self.repository = repository
     }
+
+
+    // MARK: - Load Places
 
     func loadPlaces() {
 
         do {
             places =
-                try getAllVisitedPlacesUseCase.execute()
+                try getAllVisitedPlacesUseCase
+                    .execute()
 
             errorMessage = nil
 
         } catch {
             places = []
+            errorMessage = "Unable to load your visited places."
+        }
+    }
+    
+    var repositoryForView: TravelRepositoryProtocol {
+        repository
+    }
 
-            errorMessage =
-                "Unable to load your visited places."
+
+    // MARK: - Get Trip For Place
+
+    func trip(for place: VisitedPlaceModel) -> TripModel? {
+        do {
+            return try repository.fetchTrip(id: place.tripID)
+        } catch {
+            return nil
         }
     }
 }

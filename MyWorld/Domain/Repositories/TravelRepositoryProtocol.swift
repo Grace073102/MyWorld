@@ -21,6 +21,8 @@ protocol TravelRepositoryProtocol {
     
     func updateTrip(_ trip: TripModel) throws
     
+    func fetchTrip(id: UUID) throws -> TripModel
+    
     // MARK: - Places
     
     func savePlace(_ place: VisitedPlaceModel) throws
@@ -30,4 +32,6 @@ protocol TravelRepositoryProtocol {
     func fetchAllPlaces() throws -> [VisitedPlaceModel]
     
     func updatePlace(_ place: VisitedPlaceModel) throws
+    
+    func deletePlace(id: UUID) throws
 }

@@ -35,12 +35,7 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
     func fetchTrips() throws -> [TripModel] {
         let request: NSFetchRequest<Trip> = Trip.fetchRequest()
         
-        request.sortDescriptors = [
-            NSSortDescriptor(
-                keyPath: \Trip.startDate,
-                ascending: false
-            )
-        ]
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Trip.startDate, ascending: false)]
         
         let results = try context.fetch(request)
         
@@ -61,17 +56,9 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
     func fetchTrips(countryCode: String) throws -> [TripModel] {
         let request: NSFetchRequest<Trip> = Trip.fetchRequest()
         
-        request.predicate = NSPredicate(
-            format: "countryCode ==[c] %@",
-            countryCode
-        )
+        request.predicate = NSPredicate(format: "countryCode ==[c] %@", countryCode)
         
-        request.sortDescriptors = [
-            NSSortDescriptor(
-                keyPath: \Trip.startDate,
-                ascending: false
-            )
-        ]
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Trip.startDate, ascending: false)]
         
         let results = try context.fetch(request)
         
@@ -91,10 +78,7 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
     func deleteTrip(id: UUID) throws {
         let request: NSFetchRequest<Trip> = Trip.fetchRequest()
         
-        request.predicate = NSPredicate(
-            format: "id == %@",
-            id as CVarArg
-        )
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
         request.fetchLimit = 1
         
@@ -107,10 +91,7 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
     func savePlace(_ place: VisitedPlaceModel) throws {
         let tripRequest: NSFetchRequest<Trip> = Trip.fetchRequest()
         
-        tripRequest.predicate = NSPredicate(
-            format: "id == %@",
-            place.tripID as CVarArg
-        )
+        tripRequest.predicate = NSPredicate(format: "id == %@", place.tripID as CVarArg)
         
         tripRequest.fetchLimit = 1
         
@@ -133,14 +114,10 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
     }
     
     func fetchPlaces(tripID: UUID) throws -> [VisitedPlaceModel] {
-        let request: NSFetchRequest<VisitedPlace> =
-            VisitedPlace.fetchRequest()
+        let request: NSFetchRequest<VisitedPlace> = VisitedPlace.fetchRequest()
 
         request.predicate =
-            NSPredicate(
-                format: "trip.id == %@",
-                tripID as CVarArg
-            )
+            NSPredicate(format: "trip.id == %@", tripID as CVarArg)
 
         request.sortDescriptors = [
             NSSortDescriptor(key: "visitedDate", ascending: true)
@@ -169,10 +146,7 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
 
         let request: NSFetchRequest<Trip> = Trip.fetchRequest()
 
-        request.predicate = NSPredicate(
-            format: "id == %@",
-            trip.id as CVarArg
-        )
+        request.predicate = NSPredicate(format: "id == %@", trip.id as CVarArg)
 
         request.fetchLimit = 1
 
@@ -192,14 +166,10 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
     
     func fetchAllPlaces() throws -> [VisitedPlaceModel] {
 
-        let request: NSFetchRequest<VisitedPlace> =
-            VisitedPlace.fetchRequest()
+        let request: NSFetchRequest<VisitedPlace> = VisitedPlace.fetchRequest()
 
         request.sortDescriptors = [
-            NSSortDescriptor(
-                key: "visitedDate",
-                ascending: true
-            )
+            NSSortDescriptor(key: "visitedDate", ascending: true)
         ]
 
         let entities = try context.fetch(request)
@@ -228,10 +198,7 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
 
         let request: NSFetchRequest<VisitedPlace> = VisitedPlace.fetchRequest()
 
-        request.predicate = NSPredicate(
-            format: "id == %@",
-            place.id as CVarArg
-        )
+        request.predicate = NSPredicate(format: "id == %@", place.id as CVarArg)
 
         request.fetchLimit = 1
 
@@ -246,6 +213,42 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
         entity.visitedDate = place.visitedDate
         entity.notes = place.notes
 
+        try context.save()
+    }
+    
+    func fetchTrip(id: UUID) throws -> TripModel {
+
+        let request: NSFetchRequest<Trip> = Trip.fetchRequest()
+
+        request.fetchLimit = 1
+
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+
+        guard let entity = try context.fetch(request).first else {
+            throw RepositoryError.tripNotFound
+        }
+
+        return TripModel(
+            id: entity.id ?? id,
+            name: entity.name ?? "",
+            country: entity.country ?? "",
+            countryCode: entity.countryCode ?? "",
+            startDate: entity.startDate ?? Date(),
+            endDate: entity.endDate ?? Date(),
+            notes: entity.notes ?? ""
+        )
+    }
+    
+    func deletePlace(id: UUID) throws {
+        let request: NSFetchRequest<VisitedPlace> = VisitedPlace.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.fetchLimit = 1
+
+        guard let entity = try context.fetch(request).first else {
+            throw RepositoryError.placeNotFound
+        }
+
+        context.delete(entity)
         try context.save()
     }
 }
