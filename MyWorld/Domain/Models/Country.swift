@@ -18,26 +18,18 @@ struct Country: Identifiable, Hashable {
     static let allCountries: [Country] = {
         Locale.Region.isoRegions
             .compactMap { region in
-
                 let code = region.identifier
 
-                // Only keep 2-letter country codes
-                guard code.count == 2,
-                      code.allSatisfy({ $0.isLetter }),
-                      let name = Locale.current.localizedString(
-                        forRegionCode: code
-                      ) else {
+                guard let name = Locale.current.localizedString(
+                    forRegionCode: code
+                ) else {
                     return nil
                 }
 
-                return Country(
-                    code: code,
-                    name: name
-                )
+                return Country(code: code, name: name)
             }
             .sorted {
-                $0.name.localizedCaseInsensitiveCompare($1.name)
-                    == .orderedAscending
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
             }
     }()
 }

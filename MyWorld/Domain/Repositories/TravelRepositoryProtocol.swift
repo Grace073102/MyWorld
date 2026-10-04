@@ -9,7 +9,7 @@ import Foundation
 
 protocol TravelRepositoryProtocol {
     
-    // MARK: - Trips
+    //Trips
     
     func saveTrip(_ trip: TripModel) throws
     
@@ -23,7 +23,7 @@ protocol TravelRepositoryProtocol {
     
     func fetchTrip(id: UUID) throws -> TripModel
     
-    // MARK: - Places
+    //Places
     
     func savePlace(_ place: VisitedPlaceModel) throws
     
@@ -34,4 +34,13 @@ protocol TravelRepositoryProtocol {
     func updatePlace(_ place: VisitedPlaceModel) throws
     
     func deletePlace(id: UUID) throws
+    
+    //Media
+    func saveMediaItem(_ mediaItem: MediaItemModel) throws
+    
+    func fetchMediaItems(placeID: UUID) throws -> [MediaItemModel]
+    
+    func fetchMediaItems(tripID: UUID) throws -> [MediaItemModel]
+    
+    func deleteMediaItem(id: UUID) throws
 }

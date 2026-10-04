@@ -31,9 +31,6 @@ struct ContentView: View {
     }
 }
 
-
-// MARK: - My World Container
-
 private struct MyWorldContainerView: View {
 
     let context: NSManagedObjectContext
@@ -48,9 +45,6 @@ private struct MyWorldContainerView: View {
         }
     }
 }
-
-
-// MARK: - Trips Container
 
 private struct TripsContainerView: View {
 

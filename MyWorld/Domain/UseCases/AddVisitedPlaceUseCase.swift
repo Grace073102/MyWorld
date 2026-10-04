@@ -27,29 +27,16 @@ struct AddVisitedPlaceUseCase {
         notes: String
     ) throws {
 
-        let trimmedName = name.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        )
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        let trimmedCity = city.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        )
+        let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedName.isEmpty else {
             throw TravelError.emptyPlaceName
         }
 
-//        guard latitude >= -90,
-//              latitude <= 90,
-//              longitude >= -180,
-//              longitude <= 180 else {
-//            throw TravelError.invalidCoordinates
-//        }
-
         // Visited date must be within trip dates
-        guard visitedDate >= tripStartDate &&
-              visitedDate <= tripEndDate else {
-
+        guard visitedDate >= tripStartDate && visitedDate <= tripEndDate else {
             throw TravelError.visitedDateOutsideTrip
         }
 

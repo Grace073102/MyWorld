@@ -14,20 +14,29 @@ struct PlaceDetailView: View {
     @State private var showingEditPlace = false
     @State private var showingDeleteConfirmation = false
     @State private var deleteErrorMessage: String?
+    @State private var showingMediaPicker = false
+    @StateObject private var mediaViewModel: PlaceMediaViewModel
 
     @Environment(\.dismiss) private var dismiss
 
     let trip: TripModel
     let repository: TravelRepositoryProtocol
 
-    init(
-        place: VisitedPlaceModel,
-        trip: TripModel,
-        repository: TravelRepositoryProtocol
-    ) {
+    init(place: VisitedPlaceModel, trip: TripModel, repository: TravelRepositoryProtocol) {
         _place = State(initialValue: place)
         self.trip = trip
         self.repository = repository
+
+        let addMediaUseCase = AddMediaItemUseCase(repository: repository)
+        let getMediaUseCase = GetMediaItemsForPlaceUseCase(repository: repository)
+
+        _mediaViewModel = StateObject(
+            wrappedValue: PlaceMediaViewModel(
+                placeID: place.id,
+                addMediaItemUseCase: addMediaUseCase,
+                getMediaItemsForPlaceUseCase: getMediaUseCase
+            )
+        )
     }
 
     var body: some View {
@@ -150,17 +159,36 @@ struct PlaceDetailView: View {
                             .font(.headline)
 
                         Spacer()
+
+                        Button {
+                            showingMediaPicker = true
+                        } label: {
+                            Label("Add", systemImage: "plus")
+                        }
                     }
 
-                    ContentUnavailableView(
-                        "No Memories Yet",
-                        systemImage: "photo.on.rectangle.angled",
-                        description: Text(
-                            "Photos and videos from this place will appear here."
+                    if mediaViewModel.mediaItems.isEmpty {
+                        ContentUnavailableView(
+                            "No Memories Yet",
+                            systemImage: "photo.on.rectangle.angled",
+                            description: Text("Photos and videos from this place will appear here.")
                         )
-                    )
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 15)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                    } else {
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ],
+                            spacing: 8
+                        ) {
+                            ForEach(mediaViewModel.mediaItems) { mediaItem in
+                                PlaceMediaThumbnail(mediaItem: mediaItem)
+                            }
+                        }
+                    }
                 }
                 .padding()
                 .background(Color(.secondarySystemBackground))
@@ -169,13 +197,10 @@ struct PlaceDetailView: View {
                 Button(role: .destructive) {
                     showingDeleteConfirmation = true
                 } label: {
-                    Label(
-                        "Delete Place",
-                        systemImage: "trash"
-                    )
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
+                    Label("Delete Place", systemImage: "trash")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
                 }
                 .buttonStyle(.bordered)
                 .tint(.red)
@@ -203,11 +228,21 @@ struct PlaceDetailView: View {
                 updateVisitedPlaceUseCase: updateUseCase
             )
 
-            EditPlaceView(
-                viewModel: editViewModel
-            ) { updatedPlace in
+            EditPlaceView(viewModel: editViewModel, countryCode: trip.countryCode, countryName: trip.country) { updatedPlace in
                 place = updatedPlace
             }
+        }
+        .sheet(isPresented: $showingMediaPicker) {
+            MediaPicker { data, mediaType, fileExtension in
+                mediaViewModel.addMedia(
+                    data: data,
+                    mediaType: mediaType,
+                    fileExtension: fileExtension
+                )
+            }
+        }
+        .onAppear {
+            mediaViewModel.loadMedia()
         }
         .alert("Delete Place?", isPresented: $showingDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}
@@ -281,5 +316,35 @@ private struct PlaceInformationRow: View {
 
             Spacer()
         }
+    }
+}
+
+private struct PlaceMediaThumbnail: View {
+
+    let mediaItem: MediaItemModel
+
+    var body: some View {
+        ZStack {
+            if mediaItem.mediaType == "photo",
+               let image = UIImage(
+                    contentsOfFile: MediaStorageService.shared
+                        .fileURL(for: mediaItem.fileName)
+                        .path
+               ) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Rectangle()
+                    .fill(Color(.tertiarySystemBackground))
+
+                Image(systemName: "play.circle.fill")
+                    .font(.title)
+                    .foregroundStyle(.white)
+            }
+        }
+        .frame(height: 100)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipped()
     }
 }

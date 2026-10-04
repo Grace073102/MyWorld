@@ -54,10 +54,7 @@ final class AddPlaceViewModel: ObservableObject {
         name = mapItem.name ?? "Unknown Place"
 
         // City
-        city =
-            mapItem.addressRepresentations?.cityName
-            ?? mapItem.address?.shortAddress
-            ?? ""
+        city = mapItem.addressRepresentations?.cityName ?? mapItem.address?.shortAddress ?? ""
 
         // Coordinates
         latitude = mapItem.location.coordinate.latitude

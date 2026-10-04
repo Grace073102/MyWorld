@@ -25,15 +25,11 @@ final class MyWorldViewModel: ObservableObject {
     ) {
 
         self.getAllVisitedPlacesUseCase = getAllVisitedPlacesUseCase
-
         self.repository = repository
     }
 
 
-    // MARK: - Load Places
-
     func loadPlaces() {
-
         do {
             places =
                 try getAllVisitedPlacesUseCase
@@ -50,9 +46,6 @@ final class MyWorldViewModel: ObservableObject {
     var repositoryForView: TravelRepositoryProtocol {
         repository
     }
-
-
-    // MARK: - Get Trip For Place
 
     func trip(for place: VisitedPlaceModel) -> TripModel? {
         do {

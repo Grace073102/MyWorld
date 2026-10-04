@@ -14,10 +14,7 @@ struct EditTripView: View {
     
     let onSave: (TripModel) -> Void
 
-    init(
-        viewModel: EditTripViewModel,
-        onSave: @escaping (TripModel) -> Void
-    ) {
+    init(viewModel: EditTripViewModel, onSave: @escaping (TripModel) -> Void) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.onSave = onSave
     }
@@ -25,13 +22,8 @@ struct EditTripView: View {
     var body: some View {
         NavigationStack {
             Form {
-
                 Section("Trip Information") {
-
-                    TextField(
-                        "Trip name",
-                        text: $viewModel.name
-                    )
+                    TextField("Trip name", text: $viewModel.name)
 
                     NavigationLink {
                         CountryPickerView(
@@ -40,7 +32,6 @@ struct EditTripView: View {
                         )
                     } label: {
                         HStack {
-
                             Text("Country")
 
                             Spacer()
@@ -68,11 +59,7 @@ struct EditTripView: View {
 
                 Section("Notes") {
 
-                    TextField(
-                        "Notes",
-                        text: $viewModel.notes,
-                        axis: .vertical
-                    )
+                    TextField("Notes", text: $viewModel.notes,axis: .vertical)
                     .lineLimit(3...6)
                 }
 
@@ -82,10 +69,7 @@ struct EditTripView: View {
                         Label {
                             Text(errorMessage)
                         } icon: {
-                            Image(
-                                systemName:
-                                    "exclamationmark.triangle.fill"
-                            )
+                            Image(systemName: "exclamationmark.triangle.fill")
                         }
                         .foregroundStyle(.red)
                     }
@@ -95,18 +79,13 @@ struct EditTripView: View {
             .navigationBarTitleDisplayMode(.inline)
 
             .toolbar {
-
-                ToolbarItem(
-                    placement: .cancellationAction
-                ) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()
                     }
                 }
 
-                ToolbarItem(
-                    placement: .confirmationAction
-                ) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         viewModel.updateTrip()
                     }

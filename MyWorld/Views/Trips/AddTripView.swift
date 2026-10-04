@@ -20,16 +20,10 @@ struct AddTripView: View {
         NavigationStack {
             Form {
                 Section("Trip Information") {
-                    TextField(
-                        "Trip name",
-                        text: $viewModel.name
-                    )
+                    TextField("Trip name", text: $viewModel.name)
 
                     NavigationLink {
-                        CountryPickerView(
-                            selectedCountry: $viewModel.country,
-                            selectedCountryCode: $viewModel.countryCode
-                        )
+                        CountryPickerView(selectedCountry: $viewModel.country, selectedCountryCode: $viewModel.countryCode)
                     } label: {
                         HStack {
                             Text("Country")
@@ -62,11 +56,7 @@ struct AddTripView: View {
                 }
 
                 Section("Notes") {
-                    TextField(
-                        "Notes",
-                        text: $viewModel.notes,
-                        axis: .vertical
-                    )
+                    TextField("Notes", text: $viewModel.notes,axis: .vertical)
                     .lineLimit(3...6)
                 }
 
@@ -83,10 +73,7 @@ struct AddTripView: View {
 
                 if viewModel.didSave {
                     Section {
-                        Label(
-                            "Trip saved successfully",
-                            systemImage: "checkmark.circle.fill"
-                        )
+                        Label("Trip saved successfully", systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                     }
                 }

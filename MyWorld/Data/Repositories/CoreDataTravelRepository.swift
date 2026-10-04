@@ -251,4 +251,82 @@ final class CoreDataTravelRepository: TravelRepositoryProtocol {
         context.delete(entity)
         try context.save()
     }
+    
+    func saveMediaItem(_ mediaItem: MediaItemModel) throws {
+        let placeRequest: NSFetchRequest<VisitedPlace> = VisitedPlace.fetchRequest()
+        placeRequest.fetchLimit = 1
+        placeRequest.predicate = NSPredicate(format: "id == %@", mediaItem.placeID as CVarArg)
+
+        guard let placeEntity = try context.fetch(placeRequest).first else {
+            throw RepositoryError.placeNotFound
+        }
+
+        let entity = MediaItem(context: context)
+        entity.id = mediaItem.id
+        entity.fileName = mediaItem.fileName
+        entity.mediaType = mediaItem.mediaType
+        entity.createdDate = mediaItem.createdDate
+        entity.place = placeEntity
+
+        try context.save()
+    }
+
+    func fetchMediaItems(placeID: UUID) throws -> [MediaItemModel] {
+        let request: NSFetchRequest<MediaItem> = MediaItem.fetchRequest()
+        request.predicate = NSPredicate(format: "place.id == %@", placeID as CVarArg)
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "createdDate", ascending: false)
+        ]
+
+        return try context.fetch(request).compactMap { entity in
+            guard let id = entity.id,
+                  let placeID = entity.place?.id else {
+                return nil
+            }
+
+            return MediaItemModel(
+                id: id,
+                fileName: entity.fileName ?? "",
+                mediaType: entity.mediaType ?? "",
+                createdDate: entity.createdDate ?? Date(),
+                placeID: placeID
+            )
+        }
+    }
+
+    func fetchMediaItems(tripID: UUID) throws -> [MediaItemModel] {
+        let request: NSFetchRequest<MediaItem> = MediaItem.fetchRequest()
+        request.predicate = NSPredicate(format: "place.trip.id == %@", tripID as CVarArg)
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "createdDate", ascending: false)
+        ]
+
+        return try context.fetch(request).compactMap { entity in
+            guard let id = entity.id,
+                  let placeID = entity.place?.id else {
+                return nil
+            }
+
+            return MediaItemModel(
+                id: id,
+                fileName: entity.fileName ?? "",
+                mediaType: entity.mediaType ?? "",
+                createdDate: entity.createdDate ?? Date(),
+                placeID: placeID
+            )
+        }
+    }
+
+    func deleteMediaItem(id: UUID) throws {
+        let request: NSFetchRequest<MediaItem> = MediaItem.fetchRequest()
+        request.fetchLimit = 1
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+
+        guard let entity = try context.fetch(request).first else {
+            return
+        }
+
+        context.delete(entity)
+        try context.save()
+    }
 }

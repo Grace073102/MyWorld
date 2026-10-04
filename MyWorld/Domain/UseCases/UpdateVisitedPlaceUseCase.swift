@@ -28,31 +28,16 @@ struct UpdateVisitedPlaceUseCase {
         notes: String
     ) throws {
 
-        let trimmedName = name.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        )
-
-        let trimmedCity = city.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        )
-
-        // MARK: - Validate Name
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedName.isEmpty else {
             throw TravelError.emptyPlaceName
         }
 
-
-        // MARK: - Validate Date
-
-        guard visitedDate >= tripStartDate,
-              visitedDate <= tripEndDate else {
-
+        guard visitedDate >= tripStartDate, visitedDate <= tripEndDate else {
             throw TravelError.visitedDateOutsideTrip
         }
-
-
-        // MARK: - Updated Model
 
         let updatedPlace = VisitedPlaceModel(
             id: id,
@@ -65,11 +50,6 @@ struct UpdateVisitedPlaceUseCase {
             tripID: tripID
         )
 
-
-        // MARK: - Save Update
-
-        try repository.updatePlace(
-            updatedPlace
-        )
+        try repository.updatePlace(updatedPlace)
     }
 }

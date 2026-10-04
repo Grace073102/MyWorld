@@ -24,14 +24,8 @@ struct UpdateTripUseCase {
         endDate: Date,
         notes: String
     ) throws {
-
-        let trimmedName = name.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        )
-
-        let trimmedCountry = country.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        )
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedCountry = country.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedName.isEmpty else {
             throw TravelError.emptyTripName

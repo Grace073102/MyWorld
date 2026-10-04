@@ -36,10 +36,7 @@ final class EditTripViewModel: ObservableObject {
         )
     }
 
-    init(
-        trip: TripModel,
-        updateTripUseCase: UpdateTripUseCase
-    ) {
+    init(trip: TripModel, updateTripUseCase: UpdateTripUseCase) {
         self.tripID = trip.id
         self.name = trip.name
         self.country = trip.country
@@ -52,9 +49,7 @@ final class EditTripViewModel: ObservableObject {
     }
 
     func updateTrip() {
-
         do {
-
             try updateTripUseCase.execute(
                 id: tripID,
                 name: name,

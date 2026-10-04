@@ -35,7 +35,6 @@ struct CountryPickerView: View {
                 dismiss()
             } label: {
                 HStack {
-
                     Text(flag(for: country.code))
 
                     Text(country.name)
@@ -54,10 +53,7 @@ struct CountryPickerView: View {
         }
         .navigationTitle("Select Country")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(
-            text: $searchText,
-            prompt: "Search countries"
-        )
+        .searchable(text: $searchText, prompt: "Search countries")
     }
 
     private func flag(for countryCode: String) -> String {

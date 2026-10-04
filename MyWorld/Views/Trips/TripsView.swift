@@ -12,33 +12,24 @@ struct TripsView: View {
     @StateObject private var viewModel: TripsViewModel
     private let repository: TravelRepositoryProtocol
 
-    init(
-        viewModel: TripsViewModel,
-        repository: TravelRepositoryProtocol
-    ) {
+    init(viewModel: TripsViewModel, repository: TravelRepositoryProtocol) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.repository = repository
     }
 
     var body: some View {
         Group {
-
             if let errorMessage = viewModel.errorMessage {
-
                 ContentUnavailableView(
                     "Unable to Load Trips",
                     systemImage: "exclamationmark.triangle",
                     description: Text(errorMessage)
                 )
-
             } else if viewModel.trips.isEmpty {
-
                 ContentUnavailableView(
                     "No Trips Yet",
                     systemImage: "airplane",
-                    description: Text(
-                        "Add your first trip to start building your travel history."
-                    )
+                    description: Text("Add your first trip to start building your travel history.")
                 )
 
             } else {
@@ -49,10 +40,7 @@ struct TripsView: View {
                             repository: repository
                         )
                     } label: {
-                        VStack(
-                            alignment: .leading,
-                            spacing: 6
-                        ) {
+                        VStack(alignment: .leading, spacing: 6) {
                             HStack {
                                 Text(flag(for: trip.countryCode))
                                     .font(.title2)
@@ -65,8 +53,7 @@ struct TripsView: View {
                                 .foregroundStyle(.secondary)
                             
                             Label {
-                                Text(
-                                    "\(trip.startDate.formatted(date: .abbreviated, time: .omitted)) – \(trip.endDate.formatted(date: .abbreviated, time: .omitted))"
+                                Text("\(trip.startDate.formatted(date: .abbreviated, time: .omitted)) – \(trip.endDate.formatted(date: .abbreviated, time: .omitted))"
                                 )
                             } icon: {
                                 Image(systemName: "calendar")
@@ -86,9 +73,7 @@ struct TripsView: View {
     }
 
     private func flag(for countryCode: String) -> String {
-
         let code = countryCode.uppercased()
-
         guard code.count == 2 else {
             return "🌍"
         }

@@ -16,58 +16,50 @@ final class PlaceSearchService: NSObject, ObservableObject {
     @Published var searchText = ""
 
     private let completer = MKLocalSearchCompleter()
+    private let countryCode: String
+    private let countryName: String
 
-    override init() {
+    init(countryCode: String, countryName: String) {
+        self.countryCode = countryCode.uppercased()
+        self.countryName = countryName
         super.init()
 
         completer.delegate = self
-
-        // Return places and addresses
-        completer.resultTypes = [
-            .pointOfInterest,
-            .address
-        ]
+        completer.resultTypes = [.pointOfInterest, .address]
     }
 
     func search(_ text: String) {
         searchText = text
-        completer.queryFragment = text
 
-        if text.trimmingCharacters(
-            in: .whitespacesAndNewlines
-        ).isEmpty {
+        if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             results = []
+            completer.queryFragment = ""
+            return
         }
+
+        completer.queryFragment = "\(text), \(countryName)"
     }
 
-    func getMapItem(
-        from completion: MKLocalSearchCompletion
-    ) async throws -> MKMapItem {
-
-        let request = MKLocalSearch.Request(
-            completion: completion
-        )
-
-        let search = MKLocalSearch(
-            request: request
-        )
-
+    func getMapItem(from completion: MKLocalSearchCompletion) async throws -> MKMapItem {
+        let request = MKLocalSearch.Request(completion: completion)
+        let search = MKLocalSearch(request: request)
         let response = try await search.start()
 
         guard let mapItem = response.mapItems.first else {
             throw PlaceSearchError.noResult
         }
 
+        guard mapItem.addressRepresentations?.region?.identifier.uppercased() == countryCode else {
+            throw PlaceSearchError.outsideTripCountry(countryName)
+        }
+
         return mapItem
     }
 }
 
-extension PlaceSearchService:
-    MKLocalSearchCompleterDelegate {
+extension PlaceSearchService: MKLocalSearchCompleterDelegate {
 
-    nonisolated func completerDidUpdateResults(
-        _ completer: MKLocalSearchCompleter
-    ) {
+    nonisolated func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         let newResults = completer.results
 
         Task { @MainActor in
@@ -75,17 +67,21 @@ extension PlaceSearchService:
         }
     }
 
-    nonisolated func completer(
-        _ completer: MKLocalSearchCompleter,
-        didFailWithError error: Error
-    ) {
-        print(
-            "Place search error:",
-            error.localizedDescription
-        )
+    nonisolated func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
+        print("Place search error:", error.localizedDescription)
     }
 }
 
-enum PlaceSearchError: Error {
+enum PlaceSearchError: LocalizedError {
     case noResult
+    case outsideTripCountry(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .noResult:
+            return "The selected place could not be found."
+        case .outsideTripCountry(let country):
+            return "Please select a place located in \(country)."
+        }
+    }
 }

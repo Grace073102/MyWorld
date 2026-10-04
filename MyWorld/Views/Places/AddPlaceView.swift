@@ -11,14 +11,14 @@ import MapKit
 struct AddPlaceView: View {
 
     @StateObject private var viewModel: AddPlaceViewModel
-    @StateObject private var searchService = PlaceSearchService()
+    @StateObject private var searchService: PlaceSearchService
 
     @Environment(\.dismiss)
     private var dismiss
 
-    init(viewModel: AddPlaceViewModel) {
-        _viewModel =
-            StateObject(wrappedValue: viewModel)
+    init(viewModel: AddPlaceViewModel, countryCode: String, countryName: String) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        _searchService = StateObject(wrappedValue: PlaceSearchService(countryCode: countryCode, countryName: countryName))
     }
 
     var body: some View {
@@ -53,7 +53,7 @@ struct AddPlaceView: View {
                 if !viewModel.name.isEmpty {
                     Section("Selected Place") {
                         LabeledContent("Place", value: viewModel.name)
-                        
+
                         if !viewModel.city.isEmpty {
                             LabeledContent("City", value: viewModel.city)
                         }
@@ -71,6 +71,7 @@ struct AddPlaceView: View {
                     TextField("Notes", text: $viewModel.notes, axis: .vertical)
                         .lineLimit(3...6)
                 }
+
                 if let errorMessage = viewModel.errorMessage {
                     Section {
                         Label {
@@ -110,14 +111,13 @@ struct AddPlaceView: View {
     private func selectSearchResult(_ result: MKLocalSearchCompletion) {
         Task {
             do {
-                let mapItem =
-                    try await searchService.getMapItem(from: result)
+                let mapItem = try await searchService.getMapItem(from: result)
 
                 viewModel.selectPlace(mapItem)
                 searchService.searchText = ""
                 searchService.results = []
             } catch {
-                viewModel.errorMessage = "Unable to load this place. Please try again."
+                viewModel.errorMessage = error.localizedDescription
             }
         }
     }

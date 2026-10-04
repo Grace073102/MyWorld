@@ -24,16 +24,13 @@ final class EditPlaceViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var didSave = false
 
-
     private let placeID: UUID
     private let tripID: UUID
 
     private let tripStartDate: Date
     private let tripEndDate: Date
 
-    private let updateVisitedPlaceUseCase:
-        UpdateVisitedPlaceUseCase
-
+    private let updateVisitedPlaceUseCase: UpdateVisitedPlaceUseCase
 
     init(
         place: VisitedPlaceModel,
@@ -58,8 +55,7 @@ final class EditPlaceViewModel: ObservableObject {
         self.tripStartDate = tripStartDate
         self.tripEndDate = tripEndDate
 
-        self.updateVisitedPlaceUseCase =
-            updateVisitedPlaceUseCase
+        self.updateVisitedPlaceUseCase = updateVisitedPlaceUseCase
     }
 
 
@@ -75,26 +71,14 @@ final class EditPlaceViewModel: ObservableObject {
         tripID
     }
 
-    // MARK: - Change Selected Place
+    func selectPlace(_ mapItem: MKMapItem) {
+        name = mapItem.name ?? "Unknown Place"
 
-    func selectPlace(
-        _ mapItem: MKMapItem
-    ) {
+        city = mapItem.addressRepresentations?.cityName ?? mapItem.address?.shortAddress ?? ""
 
-        name =
-            mapItem.name
-            ?? "Unknown Place"
+        latitude = mapItem.location.coordinate.latitude
 
-        city =
-            mapItem.addressRepresentations?.cityName
-            ?? mapItem.address?.shortAddress
-            ?? ""
-
-        latitude =
-            mapItem.location.coordinate.latitude
-
-        longitude =
-            mapItem.location.coordinate.longitude
+        longitude = mapItem.location.coordinate.longitude
 
         errorMessage = nil
     }

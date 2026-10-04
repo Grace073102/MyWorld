@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1D0AF3A230715565006F3CF2 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D0AF3A130715565006F3CF2 /* PhotosUI.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1D314679306A99E5008EE97F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1D0AF3A130715565006F3CF2 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
 		1D314666306A99E0008EE97F /* MyWorld.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyWorld.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D314678306A99E5008EE97F /* MyWorldTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyWorldTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D314682306A99E5008EE97F /* MyWorldUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyWorldUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1D0AF3A230715565006F3CF2 /* PhotosUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +78,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1D0AF3A030715565006F3CF2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1D0AF3A130715565006F3CF2 /* PhotosUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		1D31465D306A99E0008EE97F = {
 			isa = PBXGroup;
 			children = (
 				1D314668306A99E0008EE97F /* MyWorld */,
 				1D31467B306A99E5008EE97F /* MyWorldTests */,
 				1D314685306A99E5008EE97F /* MyWorldUITests */,
+				1D0AF3A030715565006F3CF2 /* Frameworks */,
 				1D314667306A99E0008EE97F /* Products */,
 			);
 			sourceTree = "<group>";
