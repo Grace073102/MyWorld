@@ -14,6 +14,8 @@ struct MyWorldMapView: View {
 
     @State private var showingFullMap = false
     @State private var navigationPlaceID: UUID?
+    @State private var sharedContent: String?
+    @State private var sharedContentDate: Date?
 
     @State private var mapPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
@@ -100,6 +102,56 @@ struct MyWorldMapView: View {
                     TravelStatCard(value: "\(viewModel.places.count)", title: "Places", icon: "mappin.and.ellipse")
                 }
 
+                if let sharedContent {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.down")
+
+                            Text("Shared with MyWorld")
+                                .font(.headline)
+
+                            Spacer()
+
+                            Button {
+                                SharedContentService.clear()
+                                self.sharedContent = nil
+                                sharedContentDate = nil
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+
+                        if let url = URL(string: sharedContent),
+                           url.scheme != nil {
+                            Link(destination: url) {
+                                HStack {
+                                    Image(systemName: "link")
+
+                                    Text(sharedContent)
+                                        .lineLimit(2)
+
+                                    Spacer()
+
+                                    Image(systemName: "arrow.up.right")
+                                }
+                            }
+                        } else {
+                            Text(sharedContent)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        if let sharedContentDate {
+                            Text("Shared \(sharedContentDate.formatted(date: .abbreviated, time: .shortened))")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                }
+
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         Text("Recent Places")
@@ -151,6 +203,8 @@ struct MyWorldMapView: View {
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             viewModel.loadPlaces()
+            sharedContent = SharedContentService.sharedContent
+            sharedContentDate = SharedContentService.sharedContentDate
         }
         .fullScreenCover(isPresented: $showingFullMap) {
             FullWorldMapView(places: viewModel.places)

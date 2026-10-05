@@ -305,10 +305,12 @@ struct TripDetailView: View {
 
     private var editTripSheet: some View {
         let updateTripUseCase = UpdateTripUseCase(repository: repository)
+        let updateTravelSummaryUseCase = UpdateTravelSummaryUseCase(repository: repository)
 
         let editViewModel = EditTripViewModel(
             trip: trip,
-            updateTripUseCase: updateTripUseCase
+            updateTripUseCase: updateTripUseCase,
+            updateTravelSummaryUseCase: updateTravelSummaryUseCase
         )
 
         return EditTripView(viewModel: editViewModel) { updatedTrip in

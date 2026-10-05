@@ -14,50 +14,66 @@ class ShareViewController: SLComposeServiceViewController {
     private let appGroup = "group.com.gracechong.MyWorld"
 
     override func isContentValid() -> Bool {
-        true
+        return true
     }
 
     override func didSelectPost() {
-        if !contentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            saveSharedContent(contentText)
-        }
-
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
               let attachments = extensionItem.attachments else {
-            completeRequest()
+            saveContentText()
             return
         }
 
         for provider in attachments {
-            if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] item, _ in
-                    if let url = item as? URL {
+            if provider.canLoadObject(ofClass: NSURL.self) {
+                provider.loadObject(ofClass: NSURL.self) { [weak self] object, error in
+                    if let url = object as? URL {
                         self?.saveSharedContent(url.absoluteString)
+                    } else if let error {
+                        print("Share URL error: \(error.localizedDescription)")
                     }
+
                     self?.completeRequest()
                 }
                 return
             }
 
-            if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { [weak self] item, _ in
-                    if let text = item as? String {
+            if provider.canLoadObject(ofClass: NSString.self) {
+                provider.loadObject(ofClass: NSString.self) { [weak self] object, error in
+                    if let text = object as? String {
                         self?.saveSharedContent(text)
+                    } else if let error {
+                        print("Share text error: \(error.localizedDescription)")
                     }
+
                     self?.completeRequest()
                 }
                 return
             }
+        }
+
+        saveContentText()
+    }
+
+    override func configurationItems() -> [Any]! {
+        return []
+    }
+
+    private func saveContentText() {
+        let text = contentText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if !text.isEmpty {
+            saveSharedContent(text)
         }
 
         completeRequest()
     }
 
-    override func configurationItems() -> [Any]! {
-        []
-    }
-
     private func saveSharedContent(_ content: String) {
+        guard !content.isEmpty else {
+            return
+        }
+
         let defaults = UserDefaults(suiteName: appGroup)
         defaults?.set(content, forKey: "sharedContent")
         defaults?.set(Date(), forKey: "sharedContentDate")
