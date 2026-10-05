@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import WidgetKit
 
 @main
 struct MyWorldApp: App {
@@ -18,6 +19,12 @@ struct MyWorldApp: App {
             ContentView(
                 context: persistenceController.container.viewContext
             )
+            .onAppear {
+                let repository = CoreDataTravelRepository(context: persistenceController.container.viewContext)
+                let updateTravelSummaryUseCase = UpdateTravelSummaryUseCase(repository: repository)
+                try? updateTravelSummaryUseCase.execute()
+                WidgetCenter.shared.reloadTimelines(ofKind: "MyWorldWidget")
+            }
         }
     }
 }

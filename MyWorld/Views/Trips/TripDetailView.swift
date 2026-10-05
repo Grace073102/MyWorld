@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 struct TripDetailView: View {
 
@@ -317,12 +318,14 @@ struct TripDetailView: View {
 
     private var addPlaceSheet: some View {
         let addPlaceUseCase = AddVisitedPlaceUseCase(repository: repository)
+        let updateTravelSummaryUseCase = UpdateTravelSummaryUseCase(repository: repository)
 
         let addPlaceViewModel = AddPlaceViewModel(
             tripID: trip.id,
             tripStartDate: trip.startDate,
             tripEndDate: trip.endDate,
-            addVisitedPlaceUseCase: addPlaceUseCase
+            addVisitedPlaceUseCase: addPlaceUseCase,
+            updateTravelSummaryUseCase: updateTravelSummaryUseCase
         )
 
         return AddPlaceView(
@@ -340,9 +343,12 @@ struct TripDetailView: View {
 
     private func deleteTrip() {
         let deleteUseCase = DeleteTripUseCase(repository: repository)
+        let updateTravelSummaryUseCase = UpdateTravelSummaryUseCase(repository: repository)
 
         do {
             try deleteUseCase.execute(tripID: trip.id)
+            try updateTravelSummaryUseCase.execute()
+            WidgetCenter.shared.reloadTimelines(ofKind: "MyWorldWidget")
             dismiss()
         } catch {
             deleteErrorMessage = error.localizedDescription

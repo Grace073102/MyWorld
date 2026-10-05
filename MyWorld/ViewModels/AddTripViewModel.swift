@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import WidgetKit
 
 @MainActor
 final class AddTripViewModel: ObservableObject {
@@ -22,9 +23,11 @@ final class AddTripViewModel: ObservableObject {
     @Published var didSave = false
 
     private let recordTripUseCase: RecordTripUseCase
+    private let updateTravelSummaryUseCase: UpdateTravelSummaryUseCase
 
-    init(recordTripUseCase: RecordTripUseCase) {
+    init(recordTripUseCase: RecordTripUseCase, updateTravelSummaryUseCase: UpdateTravelSummaryUseCase) {
         self.recordTripUseCase = recordTripUseCase
+        self.updateTravelSummaryUseCase = updateTravelSummaryUseCase
     }
 
     func saveTrip() {
@@ -38,6 +41,9 @@ final class AddTripViewModel: ObservableObject {
                 notes: notes
             )
 
+            try updateTravelSummaryUseCase.execute()
+            WidgetCenter.shared.reloadTimelines(ofKind: "MyWorldWidget")
+
             errorMessage = nil
             didSave = true
         } catch {
@@ -45,7 +51,7 @@ final class AddTripViewModel: ObservableObject {
             didSave = false
         }
     }
-    
+
     private func clearForm() {
         name = ""
         country = ""

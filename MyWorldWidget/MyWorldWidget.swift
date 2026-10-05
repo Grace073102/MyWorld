@@ -10,50 +10,57 @@ import SwiftUI
 
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), emoji: "😀")
+        SimpleEntry(date: Date(), tripCount: 0, countryCount: 0, placeCount: 0)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), emoji: "😀")
-        completion(entry)
+    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> Void) {
+        completion(loadEntry())
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, emoji: "😀")
-            entries.append(entry)
-        }
-
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
+    func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> Void) {
+        let entry = loadEntry()
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+        completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
     }
 
-//    func relevances() async -> WidgetRelevances<Void> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
+    private func loadEntry() -> SimpleEntry {
+        let defaults = UserDefaults(suiteName: "group.com.gracechong.MyWorld")
+        return SimpleEntry(
+            date: Date(),
+            tripCount: defaults?.integer(forKey: "tripCount") ?? 0,
+            countryCount: defaults?.integer(forKey: "countryCount") ?? 0,
+            placeCount: defaults?.integer(forKey: "placeCount") ?? 0
+        )
+    }
 }
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let emoji: String
+    let tripCount: Int
+    let countryCount: Int
+    let placeCount: Int
 }
 
-struct MyWorldWidgetEntryView : View {
+struct MyWorldWidgetEntryView: View {
     var entry: Provider.Entry
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: "globe.asia.australia.fill")
+                Text("My World")
+                    .font(.headline)
+            }
 
-            Text("Emoji:")
-            Text(entry.emoji)
+            Spacer()
+
+            Label("\(entry.countryCount) Countries", systemImage: "globe")
+            Label("\(entry.tripCount) Trips", systemImage: "airplane")
+            Label("\(entry.placeCount) Places", systemImage: "mappin.and.ellipse")
+
+            Spacer()
         }
+        .containerBackground(.fill.tertiary, for: .widget)
     }
 }
 
@@ -62,23 +69,10 @@ struct MyWorldWidget: Widget {
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            if #available(iOS 17.0, *) {
-                MyWorldWidgetEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
-            } else {
-                MyWorldWidgetEntryView(entry: entry)
-                    .padding()
-                    .background()
-            }
+            MyWorldWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("My Widget")
-        .description("This is an example widget.")
+        .configurationDisplayName("My World")
+        .description("See your travel statistics at a glance.")
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
-}
-
-#Preview(as: .systemSmall) {
-    MyWorldWidget()
-} timeline: {
-    SimpleEntry(date: .now, emoji: "😀")
-    SimpleEntry(date: .now, emoji: "🤩")
 }

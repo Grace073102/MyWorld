@@ -54,7 +54,7 @@ private struct TripsContainerView: View {
     @State private var refreshID = UUID()
 
     var body: some View {
-        
+
         let repository = CoreDataTravelRepository(context: context)
         let historyUseCase = GetTravelHistoryUseCase(repository: repository)
         let tripsViewModel = TripsViewModel(getTravelHistoryUseCase:historyUseCase)
@@ -78,7 +78,8 @@ private struct TripsContainerView: View {
                     }
                 ) {
                     let recordUseCase = RecordTripUseCase(repository: repository)
-                    let addTripViewModel = AddTripViewModel(recordTripUseCase: recordUseCase)
+                    let updateTravelSummaryUseCase = UpdateTravelSummaryUseCase(repository: repository)
+                    let addTripViewModel = AddTripViewModel(recordTripUseCase: recordUseCase, updateTravelSummaryUseCase: updateTravelSummaryUseCase)
 
                     AddTripView(viewModel: addTripViewModel)
                 }

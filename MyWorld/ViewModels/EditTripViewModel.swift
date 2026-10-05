@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import WidgetKit
 
 @MainActor
 final class EditTripViewModel: ObservableObject {
@@ -23,7 +24,8 @@ final class EditTripViewModel: ObservableObject {
 
     private let tripID: UUID
     private let updateTripUseCase: UpdateTripUseCase
-    
+    private let updateTravelSummaryUseCase: UpdateTravelSummaryUseCase
+
     var updatedTrip: TripModel {
         TripModel(
             id: tripID,
@@ -36,7 +38,7 @@ final class EditTripViewModel: ObservableObject {
         )
     }
 
-    init(trip: TripModel, updateTripUseCase: UpdateTripUseCase) {
+    init(trip: TripModel, updateTripUseCase: UpdateTripUseCase, updateTravelSummaryUseCase: UpdateTravelSummaryUseCase) {
         self.tripID = trip.id
         self.name = trip.name
         self.country = trip.country
@@ -46,6 +48,7 @@ final class EditTripViewModel: ObservableObject {
         self.notes = trip.notes
 
         self.updateTripUseCase = updateTripUseCase
+        self.updateTravelSummaryUseCase = updateTravelSummaryUseCase
     }
 
     func updateTrip() {
@@ -59,6 +62,9 @@ final class EditTripViewModel: ObservableObject {
                 endDate: endDate,
                 notes: notes
             )
+
+            try updateTravelSummaryUseCase.execute()
+            WidgetCenter.shared.reloadTimelines(ofKind: "MyWorldWidget")
 
             errorMessage = nil
             didSave = true

@@ -8,6 +8,7 @@
 import Foundation
 import MapKit
 import Combine
+import WidgetKit
 
 @MainActor
 final class AddPlaceViewModel: ObservableObject {
@@ -26,6 +27,7 @@ final class AddPlaceViewModel: ObservableObject {
 
     private let tripID: UUID
     private let addVisitedPlaceUseCase: AddVisitedPlaceUseCase
+    private let updateTravelSummaryUseCase: UpdateTravelSummaryUseCase
     private let tripStartDate: Date
     private let tripEndDate: Date
 
@@ -33,30 +35,26 @@ final class AddPlaceViewModel: ObservableObject {
         tripID: UUID,
         tripStartDate: Date,
         tripEndDate: Date,
-        addVisitedPlaceUseCase: AddVisitedPlaceUseCase
+        addVisitedPlaceUseCase: AddVisitedPlaceUseCase,
+        updateTravelSummaryUseCase: UpdateTravelSummaryUseCase
     ) {
         self.tripID = tripID
         self.tripStartDate = tripStartDate
         self.tripEndDate = tripEndDate
         self.addVisitedPlaceUseCase = addVisitedPlaceUseCase
+        self.updateTravelSummaryUseCase = updateTravelSummaryUseCase
 
-        // Default visited date to trip start date
         self.visitedDate = tripStartDate
     }
-    
+
     var validDateRange: ClosedRange<Date> {
         tripStartDate...tripEndDate
     }
 
     func selectPlace(_ mapItem: MKMapItem) {
 
-        // Place name
         name = mapItem.name ?? "Unknown Place"
-
-        // City
         city = mapItem.addressRepresentations?.cityName ?? mapItem.address?.shortAddress ?? ""
-
-        // Coordinates
         latitude = mapItem.location.coordinate.latitude
         longitude = mapItem.location.coordinate.longitude
 
@@ -84,6 +82,10 @@ final class AddPlaceViewModel: ObservableObject {
                 tripEndDate: tripEndDate,
                 notes: notes
             )
+
+            try updateTravelSummaryUseCase.execute()
+            WidgetCenter.shared.reloadTimelines(ofKind: "MyWorldWidget")
+
             errorMessage = nil
             didSave = true
         } catch {

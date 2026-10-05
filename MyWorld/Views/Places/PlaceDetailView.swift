@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import WidgetKit
 
 struct PlaceDetailView: View {
 
@@ -278,11 +279,17 @@ struct PlaceDetailView: View {
         let deleteUseCase = DeleteVisitedPlaceUseCase(
             repository: repository
         )
+        let updateTravelSummaryUseCase = UpdateTravelSummaryUseCase(
+            repository: repository
+        )
 
         do {
             try deleteUseCase.execute(
                 placeID: place.id
             )
+
+            try updateTravelSummaryUseCase.execute()
+            WidgetCenter.shared.reloadTimelines(ofKind: "MyWorldWidget")
 
             deleteErrorMessage = nil
             dismiss()
