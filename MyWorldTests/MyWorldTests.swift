@@ -184,4 +184,36 @@ final class TravelUseCaseTests: XCTestCase {
         XCTAssertEqual(repository.places.first?.city, "Sydney")
         XCTAssertEqual(repository.places.first?.tripID, tripID)
     }
+    
+    func testGetTravelHistoryReturnsSavedTrips() throws {
+        let useCase = GetTravelHistoryUseCase(repository: repository)
+
+        let firstTrip = TripModel(
+            id: UUID(),
+            name: "Japan Trip",
+            country: "Japan",
+            countryCode: "JP",
+            startDate: Date(),
+            endDate: Date(),
+            notes: ""
+        )
+
+        let secondTrip = TripModel(
+            id: UUID(),
+            name: "Sydney Trip",
+            country: "Australia",
+            countryCode: "AU",
+            startDate: Date(),
+            endDate: Date(),
+            notes: ""
+        )
+
+        repository.trips = [firstTrip, secondTrip]
+
+        let trips = try useCase.execute()
+
+        XCTAssertEqual(trips.count, 2)
+        XCTAssertEqual(trips[0].name, "Japan Trip")
+        XCTAssertEqual(trips[1].name, "Sydney Trip")
+    }
 }
